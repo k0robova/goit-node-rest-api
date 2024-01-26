@@ -64,27 +64,26 @@ export const createContact = async (req, res, next) => {
 };
 
 export const updateContact = async (req, res, next) => {
-  const { value, error } = updateContactSchema(req.body);
-
-  // if (Object.keys(value).length === 0) {
-  //   throw HttpError(400, "Body must have at least one field");
-  // }
-  // if (error) {
-  //   return res.status(400).json({
-  //     message: error.message,
-  //   });
-  // }
-  // const { name, email, phone } = value;
   try {
     const keys = Object.keys(req.body);
 
     if (keys.length === 0) {
       throw HttpError(400, "Body must have at least one field");
     }
+
+    const { value, error } = updateContactSchema(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
     const { id } = req.params;
     const contact = await updateOneContact(id, req.body);
+
     if (!contact) {
-      throw HttpError(404, "Not found!!!!!!!!!!!!!!!!!!!!!!!");
+      throw HttpError(404, "Not found");
     } else {
       return res.status(200).json(contact);
     }
