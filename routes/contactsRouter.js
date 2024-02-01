@@ -12,7 +12,7 @@ import {
   checkCreateContactData,
   checkUpdateUserData,
 } from "../midldlewars/contactMiddlewars.js";
-// import { updateFavorite } from "../schemas/contactsSchemas.js";
+import { updateFavoriteSchema } from "../schemas/contactsSchemas.js";
 
 const contactsRouter = express.Router();
 
@@ -30,6 +30,8 @@ contactsRouter.patch(
   "/:id/favorite",
   checkContactId,
   checkUpdateUserData,
+  updateContact,
+  updateFavoriteSchema,
   updateStatusContact
 );
 

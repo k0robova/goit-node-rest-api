@@ -7,7 +7,7 @@ export const createContactSchema = (data) =>
       name: Joi.string().min(5).max(15).required(),
       email: Joi.string().required(),
       phone: Joi.string().required(),
-      favorite: Joi.boolean().required(),
+      favorite: Joi.boolean(),
     })
     .validate(data);
 
@@ -22,10 +22,10 @@ export const updateContactSchema = (data) =>
     })
     .validate(data);
 
-// export const updateFavorite = (data) =>
-//   Joi.object()
-//     .options({ abortEarly: false })
-//     .keys({
-//       favorite: Joi.boolean().required(),
-//     })
-//     .validate(data);
+export const updateFavoriteSchema = (data) =>
+  Joi.object()
+    .options({ abortEarly: false })
+    .keys({
+      favorite: Joi.boolean().required(),
+    })
+    .validate(data);
