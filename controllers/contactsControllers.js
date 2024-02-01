@@ -27,7 +27,7 @@ export const getOneContact = catchAsync(async (req, res, next) => {
 
 export const createContact = catchAsync(async (req, res, next) => {
   const newContact = await createContactDB(req.body);
-  return res.status(201).json({ contact: newContact });
+  return res.status(201).json(newContact);
 });
 
 export const deleteContact = catchAsync(async (req, res, next) => {

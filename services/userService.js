@@ -1,3 +1,4 @@
+import HttpError from "../helpers/HttpError.js";
 import { Contact } from "../models/contactModel.js";
 
 export const getAllContactsDB = async () => {

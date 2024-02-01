@@ -24,4 +24,10 @@ const contactSchema = new Schema(
   }
 );
 
+// Handle Mongoose error
+contactSchema.post("save", (res, req, next) => {
+  error.status = 400;
+  next();
+});
+
 export const Contact = model("Contact", contactSchema);

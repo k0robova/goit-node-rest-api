@@ -8,12 +8,6 @@ import {
 } from "../schemas/contactsSchemas.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 
-// export const checkUserExists = async (filter) => {
-//   const userExists = await User.exists(filter);
-
-//   if (userExists) throw new HttpError(409, "User already exists..");
-// };
-
 export const checkCreateContactData = catchAsync(async (req, res, next) => {
   const { value, error } = createContactSchema(req.body);
 
@@ -25,9 +19,11 @@ export const checkCreateContactData = catchAsync(async (req, res, next) => {
   const contactExists = await Contact.exists({ email: value.email });
 
   if (contactExists)
-    throw HttpError(409, "Contact with this email already exists..");
+    throw HttpError(409, "Contact with this email already exists");
 
-  console.log(contactExists);
+  const isContactExist = await Contact.exists({ phone: value.phone });
+  if (isContactExist)
+    throw HttpError(409, "Contact with this number already exists");
 
   req.body = value;
 
@@ -39,12 +35,12 @@ export const checkContactId = catchAsync(async (req, res, next) => {
 
   const isIdValid = Types.ObjectId.isValid(id);
 
-  if (!isIdValid) throw HttpError(404, "User not found");
+  if (!isIdValid) throw HttpError(404, "Contact not found");
 
   const contactAlreadyExists = await Contact.exists({ _id: id });
   // const userExists = await User.findById(id).select('_id');
 
-  if (!contactAlreadyExists) throw HttpError(404, "User not found");
+  if (!contactAlreadyExists) throw HttpError(404, "Contact not found");
 
   next();
 });
@@ -52,12 +48,8 @@ export const checkContactId = catchAsync(async (req, res, next) => {
 export const checkUpdateUserData = (req, res, next) => {
   const { value, error } = updateContactSchema(req.body);
 
-  if (error) throw HttpError(400, "Invalid user data");
-
-  // await checkUserExists({
-  //   email: value.email,
-  //   _id: { $ne: req.params.id },
-  // });
+  // if (error) throw HttpError(400, "Invalid contact data");
+  if (error) throw HttpError(400, error.message);
 
   req.body = value;
 
