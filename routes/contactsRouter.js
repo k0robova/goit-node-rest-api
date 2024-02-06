@@ -13,21 +13,29 @@ import {
   checkUpdateUserData,
 } from "../midldlewars/contactMiddlewars.js";
 import { updateFavoriteSchema } from "../schemas/contactsSchemas.js";
+import { authenticate } from "../midldlewars/authMiddlewars.js";
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.get("/", authenticate, getAllContacts);
 
-contactsRouter.get("/:id", checkContactId, getOneContact);
+contactsRouter.get("/:id", authenticate, checkContactId, getOneContact);
 
-contactsRouter.delete("/:id", checkContactId, deleteContact);
+contactsRouter.delete("/:id", authenticate, checkContactId, deleteContact);
 
-contactsRouter.post("/", checkCreateContactData, createContact);
+contactsRouter.post("/", authenticate, checkCreateContactData, createContact);
 
-contactsRouter.put("/:id", checkContactId, checkUpdateUserData, updateContact);
+contactsRouter.put(
+  "/:id",
+  authenticate,
+  checkContactId,
+  checkUpdateUserData,
+  updateContact
+);
 
 contactsRouter.patch(
   "/:id/favorite",
+  authenticate,
   checkContactId,
   checkUpdateUserData,
   updateContact,

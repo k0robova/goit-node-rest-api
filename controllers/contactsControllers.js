@@ -16,7 +16,14 @@ import {
 } from "../services/userService.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
-  const contacts = await getAllContactsDB();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const contacts = await getAllContactsDB({ owner }, "-createdAt -updatedAt", {
+    skip,
+    limit,
+  });
+
   return res.status(200).json(contacts);
 });
 
@@ -26,7 +33,9 @@ export const getOneContact = catchAsync(async (req, res, next) => {
 });
 
 export const createContact = catchAsync(async (req, res, next) => {
-  const newContact = await createContactDB(req.body);
+  // ==
+  const { _id: owner } = req.user;
+  const newContact = await createContactDB({ ...req.body, owner });
   return res.status(201).json(newContact);
 });
 
