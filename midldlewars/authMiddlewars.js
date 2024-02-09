@@ -25,7 +25,7 @@ export const checkRegisterData = catchAsync(async (req, res, next) => {
 
   const userExists = await User.exists({ email: value.email });
 
-  if (userExists) throw HttpError(409, "User with this email already exists");
+  if (userExists) throw HttpError(409, "Email in use");
 
   req.body = value;
 
