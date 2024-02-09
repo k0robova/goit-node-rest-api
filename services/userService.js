@@ -6,9 +6,34 @@ import { Contact } from "../models/contactModel.js";
 import { User } from "../models/userModel.js";
 import { signToken } from "./jwtService.js";
 
-export const getAllContactsDB = async (idOwner) => {
+export const getAllContactsDB = async (idOwner, query) => {
   const contacts = await Contact.find(idOwner);
-  return contacts;
+  return { contacts, total: contacts.length };
+  // !2
+  // const { _id: owner } = idOwner;
+
+  // const contacts = await Contact.find();
+  // const { page = 1, limit = 10, favorite } = query;
+  // const skip = (page - 1) * limit;
+
+  // const filter = favorite ? { owner, favorite } : { owner };
+
+  // const contacts = await Contact.find(filter, "", { skip, limit });
+  // !3
+  // const contactQuery = Contact.find();
+
+  // const page = query.page ? +query.page : 1;
+  // const limit = query.limit ? +query.limit : 5;
+  // const contactsToSkip = (page - 1) * limit;
+
+  // contactQuery.skip(contactsToSkip).limit(limit);
+
+  // const contacts = await contactQuery;
+  // const filter = favorite ? { owner, favorite } : { owner };
+
+  // const contacts = await Contact.find(filter, "", { skip, limit });
+
+  // return { contacts, total: contacts.length };
 };
 
 export const getOneContactDB = async (contactId) => {
@@ -33,6 +58,10 @@ export const updateContactDB = async (contactId, contactData) => {
   return contact;
 };
 
+// ! FAVORITE
+
+// export const getFavoriteContacs = async ( )=>{ const favoriteContacts = await Contact.find({favorite: true}) return favoriteContacts}
+
 // export const updateStatusContactDB = async () => {};
 
 // AUTH SERVER :
@@ -44,8 +73,9 @@ export const registerUserDB = async (userData) => {
 
   newUser.password = undefined;
 
-  const token = signToken(newUser.id);
-  return { user: newUser, token };
+  // const token = signToken(newUser.id);
+  // return { user: newUser, token };
+  return { user: newUser };
 };
 
 export const loginUserDB = async ({ email, password }) => {
