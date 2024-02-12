@@ -5,6 +5,7 @@ import { catchAsync } from "../helpers/catchAsync.js";
 import {
   loginUserSchema,
   registerUserSchema,
+  updateSubscriptionSchema,
 } from "../schemas/contactsSchemas.js";
 import HttpError from "../helpers/HttpError.js";
 import { User } from "../models/userModel.js";
@@ -68,3 +69,14 @@ export const authenticate = async (req, res, next) => {
     next(HttpError(401, "Not authorized"));
   }
 };
+
+export const updateSucSchemaMid = catchAsync(async (req, res, next) => {
+  const { value, error } = updateSubscriptionSchema(req.body);
+
+  if (error) throw HttpError(409, "Your subscription variant is not valid");
+  // if (error) throw HttpError(400, error.message);
+
+  req.body = value;
+
+  next();
+});

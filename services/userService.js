@@ -6,38 +6,17 @@ import { Contact } from "../models/contactModel.js";
 import { User } from "../models/userModel.js";
 import { signToken } from "./jwtService.js";
 
-export const getAllContactsDB = async (idOwner, query) => {
-  const contacts = await Contact.find(idOwner);
-  return { contacts, total: contacts.length };
-  // !2
-  // const { _id: owner } = idOwner;
-
-  // const contacts = await Contact.find();
-  // const { page = 1, limit = 10, favorite } = query;
-  // const skip = (page - 1) * limit;
-
-  // const filter = favorite ? { owner, favorite } : { owner };
-
-  // const contacts = await Contact.find(filter, "", { skip, limit });
-  // !3
-  // const contactQuery = Contact.find();
-
-  // const page = query.page ? +query.page : 1;
-  // const limit = query.limit ? +query.limit : 5;
-  // const contactsToSkip = (page - 1) * limit;
-
-  // contactQuery.skip(contactsToSkip).limit(limit);
-
-  // const contacts = await contactQuery;
-  // const filter = favorite ? { owner, favorite } : { owner };
-
-  // const contacts = await Contact.find(filter, "", { skip, limit });
-
-  // return { contacts, total: contacts.length };
+export const getAllContactsDB = async (idOwner, pagination) => {
+  const contacts = await Contact.find(idOwner, "", pagination);
+  return contacts;
 };
 
-export const getOneContactDB = async (contactId) => {
-  const contact = await Contact.findById(contactId);
+export const getOneContactDB = async (contactId, owner) => {
+  const contact = await Contact.findOne({ _id: contactId, owner });
+
+  if (!contact) {
+    throw HttpError(409, "Smth went wrong");
+  }
   return contact;
 };
 
@@ -46,23 +25,33 @@ export const createContactDB = async (contactData) => {
   return newContact;
 };
 
-export const deleteContactDB = async (contactId) => {
-  const resultDeleteContact = await Contact.findByIdAndDelete(contactId);
+export const deleteContactDB = async (contactId, owner) => {
+  const resultDeleteContact = await Contact.findOneAndDelete({
+    _id: contactId,
+    owner,
+  });
+
+  if (!resultDeleteContact) {
+    throw HttpError(409, "Smth went wrong");
+  }
+
   return resultDeleteContact;
 };
 
-export const updateContactDB = async (contactId, contactData) => {
-  const contact = await Contact.findByIdAndUpdate(contactId, contactData, {
-    new: true,
-  });
+export const updateContactDB = async (contactId, contactData, owner) => {
+  const contact = await Contact.findOneAndUpdate(
+    { _id: contactId, owner },
+    contactData,
+    {
+      new: true,
+    }
+  );
+
+  if (!contact) {
+    throw HttpError(409, "Smth went wrong");
+  }
   return contact;
 };
-
-// ! FAVORITE
-
-// export const getFavoriteContacs = async ( )=>{ const favoriteContacts = await Contact.find({favorite: true}) return favoriteContacts}
-
-// export const updateStatusContactDB = async () => {};
 
 // AUTH SERVER :
 export const registerUserDB = async (userData) => {
@@ -73,8 +62,6 @@ export const registerUserDB = async (userData) => {
 
   newUser.password = undefined;
 
-  // const token = signToken(newUser.id);
-  // return { user: newUser, token };
   return { user: newUser };
 };
 
@@ -98,4 +85,14 @@ export const loginUserDB = async ({ email, password }) => {
 export const logoutUserDB = async (id, token) => {
   const user = await User.findByIdAndUpdate(id, token);
   return user;
+};
+
+export const updateSubscriptionDB = async (idOwner, subscriptionInfo) => {
+  const updateInfoSub = await User.findByIdAndUpdate(
+    idOwner,
+    { subscription: subscriptionInfo },
+    { new: true }
+  );
+  console.log(updateInfoSub);
+  return updateInfoSub;
 };

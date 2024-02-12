@@ -16,37 +16,30 @@ import {
 } from "../services/userService.js";
 
 export const getAllContacts = catchAsync(async (req, res) => {
-  // const { _id: owner } = req.user;
-  // const { page = 1, limit = 10 } = req.query;
-  // const skip = (page - 1) * limit;
-  // const { contacts, total } = await getAllContactsDB(
-  //   { owner },
-  //   "-createdAt -updatedAt",
-  //   {
-  //     skip,
-  //     limit,
-  //   }
-  // );
-  // return res.status(200).json({ contacts, total });
-  // !
-  const { contacts, total } = await getAllContactsDB(req.query, req.user);
-  return res.status(200).json({ contacts, total });
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+  console.log(favorite, "!!!!!!!!!");
+  const filteredContacts = favorite ? { owner, favorite } : { owner };
+  const contacts = await getAllContactsDB(filteredContacts, { skip, limit });
+  return res.status(200).json(contacts);
 });
 
 export const getOneContact = catchAsync(async (req, res, next) => {
-  const contact = await getOneContactDB(req.params.id);
+  const { _id: owner } = req.user;
+  const contact = await getOneContactDB(req.params.id, owner);
   return res.status(200).json(contact);
 });
 
 export const createContact = catchAsync(async (req, res, next) => {
-  // ==
   const { _id: owner } = req.user;
   const newContact = await createContactDB({ ...req.body, owner });
   return res.status(201).json(newContact);
 });
 
 export const deleteContact = catchAsync(async (req, res, next) => {
-  const resultDeleteContact = await deleteContactDB(req.params.id);
+  const { _id: owner } = req.user;
+  const resultDeleteContact = await deleteContactDB(req.params.id, owner);
   if (!resultDeleteContact) {
     throw HttpError(404, "Not found");
   } else {
@@ -68,10 +61,8 @@ export const updateContact = catchAsync(async (req, res, next) => {
       message: error.message,
     });
   }
-
-  const contact = await updateContactDB(req.params.id, req.body, {
-    new: true,
-  });
+  const { _id: owner } = req.user;
+  const contact = await updateContactDB(req.params.id, req.body, owner);
 
   if (!contact) {
     throw HttpError(404, "Not found");

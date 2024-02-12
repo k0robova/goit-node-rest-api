@@ -15,7 +15,7 @@ export const updateContactSchema = (data) =>
   Joi.object()
     .options({ abortEarly: false })
     .keys({
-      name: Joi.string().min(5).max(15),
+      name: Joi.string().min(5).max(30),
       email: Joi.string(),
       phone: Joi.string(),
       favorite: Joi.boolean(),
@@ -47,5 +47,13 @@ export const loginUserSchema = (data) =>
     .keys({
       email: Joi.string().required(),
       password: Joi.string().min(6).required(),
+    })
+    .validate(data);
+
+export const updateSubscriptionSchema = (data) =>
+  Joi.object()
+    .options({ abortEarly: false })
+    .keys({
+      subscription: Joi.string().valid("starter", "pro", "business").required(),
     })
     .validate(data);
