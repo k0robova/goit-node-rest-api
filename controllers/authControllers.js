@@ -8,8 +8,14 @@ import {
 } from "../services/userService.js";
 
 export const register = catchAsync(async (req, res) => {
-  const user = await registerUserDB(req.body);
-  res.status(201).json(user);
+  const newUser = await registerUserDB(req.body);
+  console.log(newUser);
+  res.status(201).json({
+    user: {
+      email: newUser.email,
+      subscription: newUser.subscription,
+    },
+  });
 });
 
 export const login = catchAsync(async (req, res) => {

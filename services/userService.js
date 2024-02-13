@@ -62,7 +62,7 @@ export const registerUserDB = async (userData) => {
 
   newUser.password = undefined;
 
-  return { user: newUser };
+  return newUser;
 };
 
 export const loginUserDB = async ({ email, password }) => {
