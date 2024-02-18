@@ -1,4 +1,5 @@
 import bcryptjs from "bcryptjs";
+import gravatar from "gravatar";
 
 import { subscriptionTypes } from "../constants.js";
 import HttpError from "../helpers/HttpError.js";
@@ -55,10 +56,15 @@ export const updateContactDB = async (contactId, contactData, owner) => {
 
 // AUTH SERVER :
 export const registerUserDB = async (userData) => {
-  const { password } = userData;
+  const { password, email } = userData;
   const hassedPassword = await bcryptjs.hash(password, 10);
 
-  const newUser = await User.create({ ...userData, password: hassedPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...userData,
+    password: hassedPassword,
+    avatarURL,
+  });
 
   newUser.password = undefined;
 

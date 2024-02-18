@@ -1,3 +1,7 @@
+import fs from "fs/promises";
+import path from "path";
+import Jimp from "jimp";
+
 import { catchAsync } from "../helpers/catchAsync.js";
 import { User } from "../models/userModel.js";
 import {
@@ -7,13 +11,14 @@ import {
   updateSubscriptionDB,
 } from "../services/userService.js";
 
+const avatarsDir = path.resolve("public", "avatars");
+
 export const register = catchAsync(async (req, res) => {
-  const newUser = await registerUserDB(req.body);
-  console.log(newUser);
+  const user = await registerUserDB(req.body);
   res.status(201).json({
     user: {
-      email: newUser.email,
-      subscription: newUser.subscription,
+      email: user.email,
+      subscription: user.subscription
     },
   });
 });
@@ -47,4 +52,30 @@ export const updateSubscription = catchAsync(async (req, res) => {
   const updatedUserSub = await updateSubscriptionDB(idOwner, subscription);
 
   res.status(200).json(updatedUserSub);
+});
+
+export const updateAvatar = catchAsync(async (req, res) => {
+  const { _id } = req.user;
+
+  if (!req.file) {
+    throw HttpError(400, "Avatar is required");
+  }
+  if (!id) {
+    throw HttpError(401, "Not authorized");
+  }
+  const { path: tempUpload, originalname } = req.file;
+
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.resolve(avatarsDir, fileName);
+
+  const image = await Jimp.read(tempUpload);
+  image.resize(250, 250).write(tempUpload);
+  await fs.rename(tempUpload, resultUpload);
+
+  const avatarURL = path.join("avatars", fileName);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.json({
+    avatarURL,
+  });
 });

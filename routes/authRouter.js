@@ -10,8 +10,10 @@ import {
   login,
   logout,
   register,
+  updateAvatar,
   updateSubscription,
 } from "../controllers/authControllers.js";
+import { upload } from "../midldlewars/uploadAvatar.js";
 
 const usersRouter = express.Router();
 
@@ -26,4 +28,12 @@ usersRouter.patch(
   updateSucSchemaMid,
   updateSubscription
 );
+
+usersRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  updateAvatar
+);
+
 export default usersRouter;
