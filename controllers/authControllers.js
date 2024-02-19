@@ -16,11 +16,10 @@ const avatarsDir = path.resolve("public", "avatars");
 
 export const register = catchAsync(async (req, res) => {
   const user = await registerUserDB(req.body);
-  console.log(user);
   res.status(201).json({
     user: {
       email: user.email,
-      subscription: user.subscription,
+      subscription: user.subscription
     },
   });
 });
