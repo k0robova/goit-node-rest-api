@@ -10,6 +10,7 @@ import {
   registerUserDB,
   updateSubscriptionDB,
 } from "../services/userService.js";
+import HttpError from "../helpers/HttpError.js";
 
 const avatarsDir = path.resolve("public", "avatars");
 
@@ -61,9 +62,9 @@ export const updateAvatar = catchAsync(async (req, res) => {
   if (!req.file) {
     throw HttpError(400, "Avatar is required");
   }
-  if (!id) {
-    throw HttpError(401, "Not authorized");
-  }
+  // if (!id) {
+  //   throw HttpError(401, "Not authorized");
+  // }
   const { path: tempUpload, originalname } = req.file;
 
   const fileName = `${_id}_${originalname}`;
