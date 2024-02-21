@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import { catchAsync } from "../helpers/catchAsync.js";
 import {
+  emailSchema,
   loginUserSchema,
   registerUserSchema,
   updateSubscriptionSchema,
@@ -75,6 +76,16 @@ export const updateSucSchemaMid = catchAsync(async (req, res, next) => {
 
   if (error) throw HttpError(409, "Your subscription variant is not valid");
   // if (error) throw HttpError(400, error.message);
+
+  req.body = value;
+
+  next();
+});
+
+export const emailSchemaMid = catchAsync(async (req, res, next) => {
+  const { value, error } = emailSchema(req.body);
+
+  // if (error) throw HttpError(401, "Missing required email field");
 
   req.body = value;
 

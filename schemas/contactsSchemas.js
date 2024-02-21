@@ -57,3 +57,13 @@ export const updateSubscriptionSchema = (data) =>
       subscription: Joi.string().valid("starter", "pro", "business").required(),
     })
     .validate(data);
+
+export const emailSchema = (data) =>
+  Joi.object()
+    .options({ abortEarly: false })
+    .keys({
+      email: Joi.string().required().messages({
+        "any.required": "Missing required email field",
+      }),
+    })
+    .validate(data);

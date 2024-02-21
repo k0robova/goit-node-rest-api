@@ -1,11 +1,17 @@
+import dotenv from "dotenv";
+dotenv.config();
 import bcryptjs from "bcryptjs";
 import gravatar from "gravatar";
+import { nanoid } from "nanoid";
 
 import { subscriptionTypes } from "../constants.js";
 import HttpError from "../helpers/HttpError.js";
 import { Contact } from "../models/contactModel.js";
 import { User } from "../models/userModel.js";
 import { signToken } from "./jwtService.js";
+import { sendEmail } from "../helpers/sendEmail.js";
+
+const { SECRET_KEY, BASE_URL } = process.env;
 
 export const getAllContactsDB = async (idOwner, pagination) => {
   const contacts = await Contact.find(idOwner, "", pagination);
@@ -60,13 +66,23 @@ export const registerUserDB = async (userData) => {
   const hassedPassword = await bcryptjs.hash(password, 10);
 
   const avatarURL = gravatar.url(email);
+  const verificationToken = nanoid();
   const newUser = await User.create({
     ...userData,
     password: hassedPassword,
     avatarURL,
+    verificationToken,
   });
 
   newUser.password = undefined;
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify your email",
+    html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Click here to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
 
   return newUser;
 };
@@ -75,6 +91,9 @@ export const loginUserDB = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) throw HttpError(401, "Not autorized. Email or password is wrong");
+
+  if (!user.verify)
+    throw HttpError(401, "Email is not verified. Please confirm your email");
 
   const isPasswordValid = await bcryptjs.compare(password, user.password);
 

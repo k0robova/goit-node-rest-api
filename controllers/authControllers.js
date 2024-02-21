@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import fs from "fs/promises";
 import path from "path";
 import Jimp from "jimp";
@@ -11,6 +13,9 @@ import {
   updateSubscriptionDB,
 } from "../services/userService.js";
 import HttpError from "../helpers/HttpError.js";
+import { sendEmail } from "../helpers/sendEmail.js";
+
+const { SECRET_KEY, BASE_URL } = process.env;
 
 const avatarsDir = path.resolve("public", "avatars");
 
@@ -19,9 +24,44 @@ export const register = catchAsync(async (req, res) => {
   res.status(201).json({
     user: {
       email: user.email,
-      subscription: user.subscription
+      subscription: user.subscription,
     },
   });
+});
+
+export const verifyEmail = catchAsync(async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+
+  res.json({ message: "Verification successful" });
+});
+
+export const resendVerifyEmail = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) throw HttpError(401, "Email not found");
+
+  if (user.verify) throw HttpError(400, "Verification has already been passed");
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify your email",
+    html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verificationToken}">Click here to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.json({ message: "Verification email sent" });
 });
 
 export const login = catchAsync(async (req, res) => {
@@ -61,9 +101,6 @@ export const updateAvatar = catchAsync(async (req, res) => {
   if (!req.file) {
     throw HttpError(400, "Avatar is required");
   }
-  // if (!id) {
-  //   throw HttpError(401, "Not authorized");
-  // }
   const { path: tempUpload, originalname } = req.file;
 
   const fileName = `${_id}_${originalname}`;
